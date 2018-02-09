@@ -1,7 +1,12 @@
 # Mechatronics
 Mechatronics-CCA-Spring-2018
+
+
 # week3
 ## video
+
+https://youtu.be/ZzuQMN5Wqg8
+
 ## code
 const int motorPin = 3;
 const int switchPin = 2;
