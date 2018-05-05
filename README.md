@@ -274,7 +274,7 @@ This is a machine that can automatically maintain its level. It can read the hor
 
 ### Video
 
-https://youtu.be/fkrfpTzuxd0
+https://youtu.be/skdYpDZUh-Q
 
 ### Code
     #include <Servo.h>
