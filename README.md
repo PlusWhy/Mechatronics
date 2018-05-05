@@ -255,7 +255,188 @@ https://youtu.be/yfpSTMpGJLQ
     digitalWrite(LeftMotorBackward, LOW);
     digitalWrite(RightMotorBackward, LOW);
     }
+# Final project
+## Stabilizing machine
 
+This is a machine that can automatically maintain its level. It can read the horizontal and vertical tilt angles, and then drive the servo rotation to maintain balance. It can help the restaurant attendant or can help the photographer stabilize the camera. In short, it is cool.
 
+### Image
 
+![img_6855](https://user-images.githubusercontent.com/35580394/39659406-4b5d0122-4fdc-11e8-842a-2e47523611e1.jpg)
+
+![img_6857](https://user-images.githubusercontent.com/35580394/39659408-4e90b88e-4fdc-11e8-8319-c08a14f2ab42.jpg)
+
+![img_6859](https://user-images.githubusercontent.com/35580394/39659410-4fdcbdbe-4fdc-11e8-88ab-6b5d2699f6be.jpg)
+
+![img_6856](https://user-images.githubusercontent.com/35580394/39659411-57deeae6-4fdc-11e8-87b5-4986a0bc896e.jpg)
+
+### Video
+
+https://youtu.be/fkrfpTzuxd0
+
+### Code
+    #include <Servo.h>
+    #include "I2Cdev.h"
+    #include "MPU6050_6Axis_MotionApps20.h"
+    #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+    #include "Wire.h"
+    #endif
+
+    #define LED_PIN 13
+    bool blinkState = true;
+
+    Servo Servo1;
+    Servo Servo2;
+
+    int Servo1Pos = 0;
+    int Servo2Pos = 0;
     
+    float mpuPitch = 0;
+    float mpuRoll = 0;
+    float mpuYaw = 0;
+
+    MPU6050 mpu;
+
+
+    uint8_t mpuIntStatus;
+    uint8_t devStatus;
+    uint16_t packetSize;
+    uint16_t fifoCount;
+    uint8_t fifoBuffer[64];
+
+
+    Quaternion q;
+    VectorInt16 aa;
+    VectorInt16 aaReal;
+    VectorInt16 aaWorld;
+    VectorFloat gravity;
+    float ypr[3];
+
+
+    #define PITCH   1
+    #define ROLL  2
+    #define YAW   0
+
+
+
+    void setup()
+    {
+
+      Servo1.attach(10);
+    Servo2.attach(11);
+    delay(50);
+    Servo1.write(0);
+    Servo2.write(60);
+    delay(500);
+    Servo1.write(180);
+      Servo2.write(120);
+      delay(500);
+      Servo1.write(0);
+      Servo2.write(90);
+      delay(500);
+
+    #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+      Wire.begin();
+      TWBR = 24;
+    #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+      Fastwire::setup(400, true);
+    #endif
+
+    Serial.begin(115200);
+    while (!Serial);
+    mpu.initialize();
+
+    devStatus = mpu.dmpInitialize();
+
+    mpu.setXGyroOffset(118);
+    mpu.setYGyroOffset(-44);
+    mpu.setZGyroOffset(337);
+    mpu.setXAccelOffset(-651);
+    mpu.setYAccelOffset(670);
+    mpu.setZAccelOffset(1895);
+
+
+    if (devStatus == 0)
+    {
+
+    mpu.setDMPEnabled(true);
+
+    mpuIntStatus = mpu.getIntStatus();
+
+
+    packetSize = mpu.dmpGetFIFOPacketSize();
+    }
+    pinMode(LED_PIN, OUTPUT);
+
+    } // setup()
+
+
+    void loop(void)
+    {
+    processAccelGyro();
+    }
+
+
+
+    void processAccelGyro()
+    {
+
+
+    mpuIntStatus = mpu.getIntStatus();
+
+
+    fifoCount = mpu.getFIFOCount();
+
+
+    if ((mpuIntStatus & 0x10) || fifoCount == 1024)
+    {
+
+    mpu.resetFIFO();
+    return;
+    }
+
+    if (mpuIntStatus & 0x02)
+    {
+
+    if (fifoCount < packetSize)
+      return;
+
+
+    mpu.getFIFOBytes(fifoBuffer, packetSize);
+
+
+    fifoCount -= packetSize;
+
+
+    mpu.resetFIFO();
+
+
+    mpu.dmpGetQuaternion(&q, fifoBuffer);
+    mpu.dmpGetGravity(&gravity, &q);
+    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+    mpuPitch = ypr[PITCH] * 180 / M_PI;
+    mpuRoll = ypr[ROLL] * 180 / M_PI;
+    mpuYaw  = ypr[YAW] * 180 / M_PI;
+
+
+    mpu.resetFIFO();
+
+
+    blinkState = !blinkState;
+    digitalWrite(LED_PIN, blinkState);
+
+
+    mpu.resetFIFO();
+
+    Servo1.write(-mpuPitch + 90);
+    Servo2.write(mpuRoll + 90);
+
+    mpu.resetFIFO();
+
+    }
+    }
+
+
+
+
+
