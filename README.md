@@ -262,6 +262,8 @@ This is a machine that can automatically maintain its level. It can read the hor
 
 ### Image
 
+![img_6862](https://user-images.githubusercontent.com/35580394/39659480-9ebae43c-4fdd-11e8-8c96-caf0402aec9f.jpg)
+
 ![img_6855](https://user-images.githubusercontent.com/35580394/39659406-4b5d0122-4fdc-11e8-842a-2e47523611e1.jpg)
 
 ![img_6857](https://user-images.githubusercontent.com/35580394/39659408-4e90b88e-4fdc-11e8-8319-c08a14f2ab42.jpg)
